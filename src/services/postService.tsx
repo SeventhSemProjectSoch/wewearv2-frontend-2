@@ -24,13 +24,22 @@ export interface Post {
 
 export const createPost = (data: CreatePostPayload): Promise<Post> => {
   const formData = new FormData();
-  const post_data = {
-        "caption":data.caption,
-        "themes":data.themes,
-        "media_url":data.media_url?data.media_url:null,
+  
+  formData.append('caption', data.caption);
+  
+  // Handle themes array
+  data.themes.forEach((theme, index) => {
+    formData.append(`themes[${index}]`, theme);
+  });
+  
+  // Handle media URL
+  if (data.media_url) {
+    formData.append('media_url', data.media_url);
+  } else {
+    formData.append('media_url', '');
   }
-
-  formData.append("post",JSON.stringify( post_data));
+  
+  // Handle media file
   if (data.media_file) {
     formData.append('media_file', data.media_file);
   }
@@ -48,6 +57,7 @@ export const createPostWithMultipleFiles = (
   mediaFiles: File[],
   mediaUrl?: string
 ): Promise<Post[]> => {
+  // If multiple files, create multiple posts
   const promises = mediaFiles.map(file => 
     createPost({
       caption,
