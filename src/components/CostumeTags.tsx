@@ -1,22 +1,21 @@
 import React, { useEffect, useState } from "react";
 import ENV from "@/config";
 
-type Props = React.HTMLAttributes <
-    HTMLImageElement | HTMLVideoElement | HTMLPreElement >
-    &
-    {
-        src: string;
-    };
+type Props = React.HTMLAttributes<
+    HTMLImageElement | HTMLVideoElement | HTMLPreElement
+> & {
+    src: string;
+};
 
-export const Media: React.FC < Props > = ({ src, ...rest }) => {
+export const Media: React.FC<Props> = ({ src, ...rest }) => {
     const fullSrc =
-        src.startsWith("http://") || src.startsWith("https://") ?
-        src :
-        `${ENV.BASE_URL}${src}`;
+        src.startsWith("http://") || src.startsWith("https://")
+            ? src
+            : `${ENV.BASE_URL}${src}`;
 
-    const [contentType, setContentType] = useState < string > ("");
-    const [textContent, setTextContent] = useState < string > ("");
-    const [blobUrl, setBlobUrl] = useState < string > ("");
+    const [contentType, setContentType] = useState<string>("");
+    const [textContent, setTextContent] = useState<string>("");
+    const [blobUrl, setBlobUrl] = useState<string>("");
 
     useEffect(() => {
         const fetchMedia = async () => {
@@ -49,39 +48,40 @@ export const Media: React.FC < Props > = ({ src, ...rest }) => {
     if (contentType.startsWith("image/") && blobUrl) {
         return (
             <img
-        src={blobUrl}
-        alt=""
-        style={{ maxHeight: "100%" }}
-        {...(rest as React.ImgHTMLAttributes<HTMLImageElement>)}
-      />
+                src={blobUrl}
+                alt=""
+                style={{ maxHeight: "100%" }}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                {...(rest as React.ImgHTMLAttributes<HTMLImageElement>)}
+            />
         );
     }
 
     if (contentType.startsWith("video/") && blobUrl) {
         return (
             <video
-        src={blobUrl}
-        controls
-        style={{ maxHeight: "100%" }}
-        {...(rest as React.VideoHTMLAttributes<HTMLVideoElement>)}
-      />
+                src={blobUrl}
+                controls
+                style={{ maxHeight: "100%" }}
+                {...(rest as React.VideoHTMLAttributes<HTMLVideoElement>)}
+            />
         );
     }
 
     if (textContent) {
         return (
             <pre
-        style={{
-          maxHeight: "100%",
-          overflowX: "auto",
-          background: "#f4f4f4",
-          padding: "10px",
-          whiteSpace: "pre-wrap",
-        }}
-        {...(rest as React.HTMLAttributes<HTMLPreElement>)}
-      >
-        {textContent}
-      </pre>
+                style={{
+                    maxHeight: "100%",
+                    overflowX: "auto",
+                    background: "#f4f4f4",
+                    padding: "10px",
+                    whiteSpace: "pre-wrap",
+                }}
+                {...(rest as React.HTMLAttributes<HTMLPreElement>)}
+            >
+                {textContent}
+            </pre>
         );
     }
 

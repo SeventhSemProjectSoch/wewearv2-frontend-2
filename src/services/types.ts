@@ -1,24 +1,48 @@
 export interface Profile {
-    username ? : string | null;
-    full_name ? : string | null;
-    bio ? : string | null;
-    profile_picture ? : string | null;
-    body_type ? : string | null;
-    height ? : number | null;
-    weight ? : number | null;
+    username?: string | null;
+    full_name?: string | null;
+    bio?: string | null;
+    profile_picture?: string | null;
+    body_type?: string | null;
+    height?: number | null;
+    weight?: number | null;
     themes: string[];
 }
+export interface IProfile {
+    username?: string | null;
+    full_name?: string | null;
+    bio?: string | null;
+    profile_picture?: string | null;
+    body_type?: string | null;
+    height?: number | null;
+    weight?: number | null;
+    themes: string[];
+}
+export interface FeedProfile {
+    id: string;
+    username: string;
+    full_name: string;
+    bio: string;
+    profile_picture: string;
+    body_type: string;
+    height: number;
+    weight: number;
+    themes: string[];
+    followers_count: number;
+    following_count: number;
+    posts_count: number;
+}
 
-export interface UpdateProfile extends Partial < Omit < Profile, 'themes' >> {
-    themes ? : string[];
+export interface UpdateProfile extends Partial<Omit<Profile, "themes">> {
+    themes?: string[];
 }
 
 export interface Post {
     id: number;
     author_id: string;
-    author_username ? : string | null;
-    media_url ? : string | null;
-    caption ? : string | null;
+    author_username?: string | null;
+    media_url?: string | null;
+    caption?: string | null;
     themes: string[];
     created_at: string;
     likes_count: number;
@@ -37,5 +61,4 @@ export interface Comment {
     created_at: string;
 }
 
-
-type FeedType = "foryou" | "friends" | "explore" | "upload";
+export type FeedType = "foryou" | "friends" | "explore" | "upload";
