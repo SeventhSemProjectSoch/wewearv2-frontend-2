@@ -38,8 +38,20 @@ const Profile = () => {
         });
         let save_success = false;
         try {
-            console.log("profile ==> ", profile);
-            const updated = await updateProfile(profile);
+            // Prepare the data to submit, matching the expected structure
+            const submitData = {
+                username: profile.username,
+                full_name: profile.full_name,
+                bio: profile.bio,
+                profile_picture: profile.profile_picture,
+                body_type: profile.body_type,
+                height: profile.height,
+                weight: profile.weight,
+                gender: profile.gender,
+                themes: profile.themes || [],
+            };
+            console.log("profile to submit ==> ", submitData);
+            const updated = await updateProfile(submitData);
             setProfile(updated);
             save_success = true;
         } catch {
@@ -165,7 +177,7 @@ const Profile = () => {
                                 </div>
 
                                 {/* Physical Information */}
-                                <div className="grid md:grid-cols-3 gap-6">
+                                <div className="grid md:grid-cols-4 gap-6">
                                     <div className="space-y-2">
                                         <Label
                                             htmlFor="bodyType"
@@ -173,18 +185,7 @@ const Profile = () => {
                                         >
                                             Body Type
                                         </Label>
-                                        {/* <Input
-                                            id="bodyType"
-                                            value={profile.body_type || ""}
-                                            onChange={(e) =>
-                                                handleChange(
-                                                    "body_type",
-                                                    e.target.value
-                                                )
-                                            }
-                                            className="h-11"
-                                            placeholder="e.g., Athletic, Curvy"
-                                        /> */}
+
                                         <BodyTypeDropdown
                                             value={profile.body_type}
                                             onChange={(bodyType) =>
@@ -194,6 +195,32 @@ const Profile = () => {
                                                 )
                                             }
                                         />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label
+                                            htmlFor="gender"
+                                            className="text-sm font-medium"
+                                        >
+                                            Gender
+                                        </Label>
+                                        <select
+                                            id="gender"
+                                            value={profile.gender || ""}
+                                            onChange={(e) =>
+                                                handleChange(
+                                                    "gender",
+                                                    e.target.value
+                                                )
+                                            }
+                                            className="h-11 border-1 border-gray-300 w-full rounded-md px-3 py-2 "
+                                        >
+                                            <option value="">
+                                                Select Gender
+                                            </option>
+                                            <option value="M">Male</option>
+                                            <option value="F">Female</option>
+                                            <option value="O">Other</option>
+                                        </select>
                                     </div>
                                     <div className="space-y-2">
                                         <Label
@@ -247,23 +274,7 @@ const Profile = () => {
                                     >
                                         Fashion Themes
                                     </Label>
-                                    {/* <Input
-                                        id="themes"
-                                        value={profile.themes.join(", ")}
-                                        onChange={(e) =>
-                                            handleChange(
-                                                "themes",
-                                                e.target.value
-                                                    .split(",")
-                                                    .map((t) => t.trim())
-                                            )
-                                        }
-                                        className="h-11"
-                                        placeholder="e.g., Minimalist, Streetwear, Vintage, Bohemian"
-                                    />
-                                    <p className="text-sm text-muted-foreground">
-                                        Separate multiple themes with commas
-                                    </p> */}
+
                                     <ThemesDropdown
                                         value={profile.themes}
                                         onChange={(themes) =>

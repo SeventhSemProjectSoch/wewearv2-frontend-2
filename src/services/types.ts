@@ -17,6 +17,7 @@ export interface IProfile {
     height?: number | null;
     weight?: number | null;
     themes: string[];
+    gender?: string;
 }
 export interface FeedProfile {
     id: string;
