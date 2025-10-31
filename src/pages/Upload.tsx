@@ -2,7 +2,8 @@
 
 import type React from "react";
 import "./upload.css";
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
+import Webcam from "react-webcam";
 import {
     Upload as UploadIcon,
     Link as LinkIcon,
@@ -10,6 +11,8 @@ import {
     ArrowRight,
     ArrowLeft,
     Camera,
+    Video,
+    Square,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
@@ -27,82 +30,88 @@ interface UploadedFile {
 
 const CameraPreview = ({
     onClose,
-    onCapture,
-    onRecord,
-    isRecording,
-    stopRecording,
-    recordingTime,
+    onPhotoCapture,
+    onVideoCapture,
+}: {
+    onClose: () => void;
+    onPhotoCapture: (blob: Blob) => void;
+    onVideoCapture: (blob: Blob) => void;
 }) => {
-    const videoRef = useRef<HTMLVideoElement>(null);
-    const [stream, setStream] = useState<MediaStream | null>(null);
-
-    // const startCamera = useCallback(async () => {
-    //     try {
-    //         const mediaStream = await navigator.mediaDevices.getUserMedia({
-    //             video: { facingMode: "user" },
-    //             audio: true,
-    //         });
-    //         setStream(mediaStream);
-    //         if (videoRef.current) {
-    //             videoRef.current.srcObject = mediaStream;
-    //         }
-    //     } catch (err) {
-    //         console.error("Camera error:", err);
-    //         toast.error("Could not access camera. Please check permissions.");
-    //         onClose();
-    //     }
-    // }, [onClose]);
+    const webcamRef = useRef<Webcam>(null);
+    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+    const [isRecording, setIsRecording] = useState(false);
+    const [recordingTime, setRecordingTime] = useState(0);
+    const recordedChunksRef = useRef<Blob[]>([]);
 
     useEffect(() => {
-        let isMounted = true;
-
-        const startCamera = async () => {
-            try {
-                const mediaStream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: "user" },
-                    audio: true,
-                });
-                if (isMounted) {
-                    setStream(mediaStream);
-                    if (videoRef.current) {
-                        videoRef.current.srcObject = mediaStream;
-                    }
-                }
-            } catch (err) {
-                console.error("Camera error:", err);
-                if (isMounted) {
-                    toast.error(
-                        "Could not access camera. Please check permissions."
-                    );
-                    onClose();
-                }
-            }
-        };
-
-        startCamera();
-
+        let interval: NodeJS.Timeout;
+        if (isRecording) {
+            interval = setInterval(() => {
+                setRecordingTime((prev) => prev + 1);
+            }, 1000);
+        }
         return () => {
-            isMounted = false;
-            if (stream) {
-                stream.getTracks().forEach((track) => track.stop());
-            }
+            if (interval) clearInterval(interval);
         };
-    }, [onClose]);
+    }, [isRecording]);
 
-    const handleCapture = () => {
-        if (videoRef.current) onCapture(videoRef.current);
+    const capturePhoto = () => {
+        const imageSrc = webcamRef.current?.getScreenshot();
+        if (imageSrc) {
+            // Convert base64 to blob
+            fetch(imageSrc)
+                .then((res) => res.blob())
+                .then((blob) => {
+                    onPhotoCapture(blob);
+                    toast.success("Photo captured!");
+                });
+        }
     };
 
-    const handleRecord = () => {
-        if (videoRef.current) onRecord(videoRef.current);
+    const startRecording = () => {
+        recordedChunksRef.current = [];
+        setRecordingTime(0);
+        
+        if (webcamRef.current && webcamRef.current.stream) {
+            const stream = webcamRef.current.stream;
+            
+            const options = { mimeType: "video/webm" };
+            const mediaRecorder = new MediaRecorder(stream, options);
+            
+            mediaRecorder.ondataavailable = (event) => {
+                if (event.data && event.data.size > 0) {
+                    recordedChunksRef.current.push(event.data);
+                }
+            };
+            
+            mediaRecorder.onstop = () => {
+                // Create blob when recording stops
+                if (recordedChunksRef.current.length > 0) {
+                    const blob = new Blob(recordedChunksRef.current, { type: "video/webm" });
+                    onVideoCapture(blob);
+                    toast.success("Video recorded!");
+                    recordedChunksRef.current = [];
+                }
+            };
+            
+            mediaRecorder.start(100); // Collect data every 100ms
+            mediaRecorderRef.current = mediaRecorder;
+            setIsRecording(true);
+            toast.success("Recording started!");
+        }
+    };
+
+    const stopRecording = () => {
+        if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+            mediaRecorderRef.current.stop();
+            setIsRecording(false);
+        }
     };
 
     const formatTime = (seconds: number) => {
         const mins = Math.floor(seconds / 60);
         const secs = seconds % 60;
-        return `${mins.toString().padStart(2, "0")}:${secs
-            .toString()
-            .padStart(2, "0")}`;
+        return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
     };
 
     return (
@@ -112,35 +121,45 @@ const CameraPreview = ({
             exit={{ opacity: 0 }}
             className="camera-preview"
         >
-            <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                muted
+            <Webcam
+                ref={webcamRef}
+                audio={true}
+                screenshotFormat="image/jpeg"
+                videoConstraints={{
+                    facingMode: "user",
+                    width: 1280,
+                    height: 720,
+                }}
                 className="camera-video"
             />
+            
             <button onClick={onClose} className="camera-close-btn">
                 <X size={24} />
             </button>
+            
             {isRecording && (
                 <div className="camera-timer">
                     <div className="timer-pulse"></div>
                     {formatTime(recordingTime)}
                 </div>
             )}
+            
             <div className="camera-controls">
                 <button
-                    onClick={handleCapture}
+                    onClick={capturePhoto}
                     disabled={isRecording}
                     className="capture-btn"
+                    title="Take Photo"
                 >
                     <Camera size={28} />
                 </button>
+                
                 <button
-                    onClick={isRecording ? stopRecording : handleRecord}
+                    onClick={isRecording ? stopRecording : startRecording}
                     className={`record-btn ${isRecording ? "recording" : ""}`}
+                    title={isRecording ? "Stop Recording" : "Start Recording"}
                 >
-                    <div className="record-btn-inner"></div>
+                    {isRecording ? <Square size={24} /> : <Video size={24} />}
                 </button>
             </div>
         </motion.div>
@@ -156,30 +175,8 @@ const Upload: React.FC = () => {
     const [mediaUrl, setMediaUrl] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showCamera, setShowCamera] = useState(false);
-    const [isRecording, setIsRecording] = useState(false);
-    const [recordingTime, setRecordingTime] = useState(0);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-    const recordedChunksRef = useRef<Blob[]>([]);
-    const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
-
-    useEffect(() => {
-        if (isRecording) {
-            recordingIntervalRef.current = setInterval(
-                () => setRecordingTime((prev) => prev + 1),
-                1000
-            );
-        } else if (recordingIntervalRef.current) {
-            clearInterval(recordingIntervalRef.current);
-            setRecordingTime(0);
-        }
-        return () => {
-            if (recordingIntervalRef.current)
-                clearInterval(recordingIntervalRef.current);
-        };
-    }, [isRecording]);
 
     const handleFiles = (files: File[]) => {
         const validFiles = files.filter(
@@ -190,18 +187,20 @@ const Upload: React.FC = () => {
             toast.error("Unsupported file type.");
             return;
         }
-        const newFiles = validFiles.map((file) => ({
+        const newFiles: UploadedFile[] = validFiles.map((file) => ({
             file,
             preview: URL.createObjectURL(file),
             type: file.type.startsWith("image/")
                 ? "image"
                 : ("video" as "image" | "video"),
+            themes: []
         }));
         setUploadedFiles((prev) => [...prev, ...newFiles]);
     };
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) =>
         handleFiles(Array.from(e.target.files || []));
+    
     const handleDrop = (e: React.DragEvent) => {
         e.preventDefault();
         e.stopPropagation();
@@ -211,84 +210,36 @@ const Upload: React.FC = () => {
     const removeFile = (index: number) =>
         setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
 
-    const capturePhoto = (videoElement: HTMLVideoElement) => {
-        if (canvasRef.current) {
-            const canvas = canvasRef.current;
-            canvas.width = videoElement.videoWidth;
-            canvas.height = videoElement.videoHeight;
-            canvas
-                .getContext("2d")
-                ?.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-            canvas.toBlob((blob) => {
-                if (blob) {
-                    const file = new File([blob], `photo-${Date.now()}.jpg`, {
-                        type: "image/jpeg",
-                    });
-                    setUploadedFiles((prev) => [
-                        ...prev,
-                        {
-                            file,
-                            preview: URL.createObjectURL(blob),
-                            type: "image",
-                        },
-                    ]);
-                    setShowCamera(false);
-                    toast.success("Photo captured!");
-                }
-            }, "image/jpeg");
-        }
+    const handlePhotoCapture = (blob: Blob) => {
+        const file = new File([blob], `photo-${Date.now()}.jpg`, {
+            type: "image/jpeg",
+        });
+        setUploadedFiles((prev) => [
+            ...prev,
+            {
+                file,
+                preview: URL.createObjectURL(blob),
+                type: "image",
+                themes: []
+            },
+        ]);
+        setShowCamera(false);
     };
 
-    const startRecording = (videoElement: HTMLVideoElement) => {
-        if (videoElement.srcObject instanceof MediaStream) {
-            const stream = videoElement.srcObject;
-            recordedChunksRef.current = [];
-            const mimeType = [
-                "video/webm;codecs=vp9,opus",
-                "video/webm",
-                "video/mp4",
-            ].find((type) => MediaRecorder.isTypeSupported(type));
-            if (!mimeType) {
-                toast.error(
-                    "Video recording is not supported on your browser."
-                );
-                return;
-            }
-            mediaRecorderRef.current = new MediaRecorder(stream, { mimeType });
-            mediaRecorderRef.current.ondataavailable = (event) => {
-                if (event.data.size > 0)
-                    recordedChunksRef.current.push(event.data);
-            };
-            mediaRecorderRef.current.onstop = () => {
-                const blob = new Blob(recordedChunksRef.current, {
-                    type: mimeType,
-                });
-                const file = new File(
-                    [blob],
-                    `video-${Date.now()}.${
-                        mimeType.split("/")[1].split(";")[0]
-                    }`,
-                    { type: mimeType }
-                );
-                setUploadedFiles((prev) => [
-                    ...prev,
-                    { file, preview: URL.createObjectURL(blob), type: "video" },
-                ]);
-                setShowCamera(false);
-                toast.success("Video recorded!");
-            };
-            mediaRecorderRef.current.start();
-            setIsRecording(true);
-        } else {
-            toast.error("Could not start recording. No video stream found.");
-        }
-    };
-
-    const stopRecording = () => {
-        if (mediaRecorderRef.current) {
-            mediaRecorderRef.current.stop();
-            setIsRecording(false);
-        }
+    const handleVideoCapture = (blob: Blob) => {
+        const file = new File([blob], `video-${Date.now()}.webm`, {
+            type: "video/webm",
+        });
+        setUploadedFiles((prev) => [
+            ...prev,
+            {
+                file,
+                preview: URL.createObjectURL(blob),
+                type: "video",
+                themes: []
+            },
+        ]);
+        setShowCamera(false);
     };
 
     const addTheme = () => {
@@ -365,21 +316,16 @@ const Upload: React.FC = () => {
         out: { opacity: 0, x: -50 },
     };
 
-    const pageTransition = { type: "tween", ease: "circOut", duration: 0.4 };
+    const pageTransition = { duration: 0.4 };
 
     return (
         <div className="upload-container">
-            <canvas ref={canvasRef} style={{ display: "none" }} />
-
             <AnimatePresence>
                 {showCamera && (
                     <CameraPreview
                         onClose={() => setShowCamera(false)}
-                        onCapture={capturePhoto}
-                        onRecord={startRecording}
-                        isRecording={isRecording}
-                        stopRecording={stopRecording}
-                        recordingTime={recordingTime}
+                        onPhotoCapture={handlePhotoCapture}
+                        onVideoCapture={handleVideoCapture}
                     />
                 )}
             </AnimatePresence>
