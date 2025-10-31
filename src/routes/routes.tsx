@@ -9,6 +9,7 @@ import Home from "../pages/Home";
 import type { RouteObject } from "react-router-dom";
 import FeedProfile from "@/pages/FeedProfile";
 import ProfileInfo from "@/pages/profile-info";
+import Search from "@/pages/search";
 
 const routes: RouteObject[] = [
     {
@@ -34,6 +35,10 @@ const routes: RouteObject[] = [
             {
                 path: "/profile",
                 element: <ProfileInfo />,
+            },
+            {
+                path: "/search",
+                element: <Search />,
             },
             {
                 path: "/edit-profile",

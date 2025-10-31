@@ -1,10 +1,25 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Users, Compass, Plus, User, LogOut, Edit } from "lucide-react";
+import {
+    Home,
+    Users,
+    Compass,
+    Plus,
+    User,
+    LogOut,
+    Edit,
+    Search,
+} from "lucide-react";
 
 const Navbar = () => {
     const { pathname } = useLocation();
 
     const navItems = [
+        {
+            path: "/search",
+            icon: Search,
+            label: "Search",
+            isActive: pathname === "/search",
+        },
         {
             path: "/feeds/foryou",
             icon: Home,

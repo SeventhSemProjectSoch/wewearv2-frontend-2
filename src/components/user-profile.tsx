@@ -94,9 +94,9 @@ export default function UserProfile({ id, role }: UserProfileProps) {
                     <h1 className="text-2xl font-bold text-foreground">
                         {user?.username}
                     </h1>
-                    <Button variant="ghost" size="icon">
+                    {/* <Button variant="ghost" size="icon">
                         <MoreHorizontal className="w-6 h-6" />
-                    </Button>
+                    </Button> */}
                 </div>
 
                 {/* Profile info section */}

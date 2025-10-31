@@ -55,7 +55,7 @@ export default function PostCard({ post }: PostCardProps) {
     return (
         <div className="bg-card rounded-lg overflow-hidden border border-border hover:shadow-lg transition-shadow duration-300">
             {/* Post image */}
-            <div className="relative w-full aspect-square overflow-hidden bg-muted group cursor-pointer">
+            <div className="relative w-full aspect-square overflow-hidden bg-muted group cursor-pointer border-2 flex items-center justify-center">
                 {/* <img
                     src={post.media_url || "/placeholder.svg"}
                     alt={post.caption}
