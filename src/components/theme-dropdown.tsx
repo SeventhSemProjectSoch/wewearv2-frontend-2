@@ -34,7 +34,6 @@ export function ThemesDropdown({
             const theme = await apiClient.get(`/meta/themes/`);
             setTheme(theme.data);
         };
-       
 
         apiRequest();
     }, []);
@@ -43,7 +42,7 @@ export function ThemesDropdown({
         <div className="w-full space-y-3">
             <select
                 onChange={handleSelectChange}
-                className={`w-full px-3 py-2 border border-input rounded-md  text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring ${className}`}
+                className={`w-full px-3 py-2 border-1 border-gray-300 rounded-md  text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring ${className}`}
                 defaultValue=""
             >
                 <option value="">{placeholder}</option>

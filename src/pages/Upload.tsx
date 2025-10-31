@@ -36,31 +36,58 @@ const CameraPreview = ({
     const videoRef = useRef<HTMLVideoElement>(null);
     const [stream, setStream] = useState<MediaStream | null>(null);
 
-    const startCamera = useCallback(async () => {
-        try {
-            const mediaStream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: "user" },
-                audio: true,
-            });
-            setStream(mediaStream);
-            if (videoRef.current) {
-                videoRef.current.srcObject = mediaStream;
-            }
-        } catch (err) {
-            console.error("Camera error:", err);
-            toast.error("Could not access camera. Please check permissions.");
-            onClose();
-        }
-    }, [onClose]);
+    // const startCamera = useCallback(async () => {
+    //     try {
+    //         const mediaStream = await navigator.mediaDevices.getUserMedia({
+    //             video: { facingMode: "user" },
+    //             audio: true,
+    //         });
+    //         setStream(mediaStream);
+    //         if (videoRef.current) {
+    //             videoRef.current.srcObject = mediaStream;
+    //         }
+    //     } catch (err) {
+    //         console.error("Camera error:", err);
+    //         toast.error("Could not access camera. Please check permissions.");
+    //         onClose();
+    //     }
+    // }, [onClose]);
 
     useEffect(() => {
+        let isMounted = true;
+
+        const startCamera = async () => {
+            try {
+                const mediaStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: "user" },
+                    audio: true,
+                });
+                if (isMounted) {
+                    setStream(mediaStream);
+                    if (videoRef.current) {
+                        videoRef.current.srcObject = mediaStream;
+                    }
+                }
+            } catch (err) {
+                console.error("Camera error:", err);
+                if (isMounted) {
+                    toast.error(
+                        "Could not access camera. Please check permissions."
+                    );
+                    onClose();
+                }
+            }
+        };
+
         startCamera();
+
         return () => {
+            isMounted = false;
             if (stream) {
                 stream.getTracks().forEach((track) => track.stop());
             }
         };
-    }, [startCamera]);
+    }, [onClose]);
 
     const handleCapture = () => {
         if (videoRef.current) onCapture(videoRef.current);

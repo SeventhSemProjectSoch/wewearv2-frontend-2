@@ -121,7 +121,7 @@ export default function FeedProfile() {
 
     return (
         <main className="min-h-screen bg-background">
-            <UserProfile id={id} />
+            <UserProfile id={id} role="creator" />
             <PostGrid id={id} />
         </main>
     );

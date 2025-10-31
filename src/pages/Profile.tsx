@@ -9,10 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ThemesDropdown } from "@/components/theme-dropdown";
-import {
-    BodyTypeDropdown,
-    BodyTypeDropDown,
-} from "@/components/body-type-dropdown";
+import { BodyTypeDropdown } from "@/components/body-type-dropdown";
 import type { IProfile } from "@/services/types";
 
 const Profile = () => {
@@ -122,7 +119,7 @@ const Profile = () => {
                                                     e.target.value
                                                 )
                                             }
-                                            className="h-11"
+                                            className="h-11 border-1 border-gray-300"
                                             placeholder="Enter your username"
                                         />
                                     </div>
@@ -142,7 +139,7 @@ const Profile = () => {
                                                     e.target.value
                                                 )
                                             }
-                                            className="h-11"
+                                            className="h-11 border-1 border-gray-300"
                                             placeholder="Enter your full name"
                                         />
                                     </div>
@@ -162,7 +159,7 @@ const Profile = () => {
                                         onChange={(e) =>
                                             handleChange("bio", e.target.value)
                                         }
-                                        className="min-h-[100px] resize-none"
+                                        className="min-h-[100px] resize-none border-1 border-gray-300"
                                         placeholder="Tell us about your style and fashion interests..."
                                     />
                                 </div>
@@ -215,7 +212,7 @@ const Profile = () => {
                                                     Number(e.target.value)
                                                 )
                                             }
-                                            className="h-11"
+                                            className="h-11 border-1 border-gray-300"
                                             placeholder="170"
                                         />
                                     </div>
@@ -236,7 +233,7 @@ const Profile = () => {
                                                     Number(e.target.value)
                                                 )
                                             }
-                                            className="h-11"
+                                            className="h-11 border-1 border-gray-300"
                                             placeholder="65"
                                         />
                                     </div>

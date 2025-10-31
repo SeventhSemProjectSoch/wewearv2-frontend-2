@@ -25,7 +25,7 @@ export function BodyTypeDropdown({ value, onChange }: BodyTypeDropdownProps) {
         <select
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            className="h-11 w-full px-3 py-2 border border-input  rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+            className="h-11 w-full px-3 py-2   rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-1 border-gray-300"
         >
             <option value="">Select a body type</option>
             {bodyType.map((option) => (

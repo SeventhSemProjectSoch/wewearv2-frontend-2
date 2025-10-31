@@ -6,6 +6,7 @@ import { requestOTP, verifyOTP } from "@/services/authService";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import apiClient from "@/services/apiClient";
 // import Link from "next/link";
 
 const Login = () => {
@@ -14,6 +15,8 @@ const Login = () => {
     const [step, setStep] = useState("request");
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const [mailExists, setMailExists] = useState(false);
+    const [agreedToTerms, setAgreedToTerms] = useState(false);
 
     useEffect(() => {
         // Redirect if already logged in
@@ -22,6 +25,17 @@ const Login = () => {
         }
     }, [navigate]);
 
+    useEffect(() => {
+        const checkMail = async () => {
+            const response = await apiClient.post(`/auth/exists`, {
+                email: email,
+            });
+            console.log("checkmail exists ==> ", response);
+            setMailExists(response.data.exists);
+            // setAgreedToTerms();
+        };
+        checkMail();
+    }, [step]);
     const handleRequestOTP = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -51,6 +65,8 @@ const Login = () => {
             setLoading(false);
         }
     };
+
+    console.log("mail exists ==> ", mailExists);
 
     return (
         <div className="min-h-screen bg-off-white">
@@ -167,79 +183,124 @@ const Login = () => {
                                 </div>
                             </form>
                         ) : (
-                            <form
-                                onSubmit={handleVerifyOTP}
-                                className="space-y-6"
-                            >
-                                <div>
-                                    <label
-                                        htmlFor="code"
-                                        className="block text-sm font-medium text-gray-700 mb-2"
-                                    >
-                                        Verification Code
-                                    </label>
-                                    <p className="text-sm text-gray-600 mb-3">
-                                        We sent a code to{" "}
-                                        <span className="font-medium text-bamboo">
-                                            {email}
-                                        </span>
-                                    </p>
-                                    <input
-                                        id="code"
-                                        type="text"
-                                        value={code}
-                                        onChange={(e) =>
-                                            setCode(e.target.value)
-                                        }
-                                        placeholder="Enter 6-digit code"
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bamboo focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500 text-center text-lg tracking-widest"
-                                        required
-                                        maxLength={7}
-                                    />
-                                </div>
-                                <Button
-                                    type="submit"
-                                    className="bg-secondary hover:bg-secondary/90 text-secondary-foreground cursor-pointer"
-                                    disabled={loading}
+                            <>
+                                <form
+                                    onSubmit={handleVerifyOTP}
+                                    className="space-y-6"
                                 >
-                                    {loading ? (
-                                        <span className="flex items-center justify-center">
-                                            <svg
-                                                className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                fill="none"
-                                                viewBox="0 0 24 24"
-                                            >
-                                                <circle
-                                                    className="opacity-25"
-                                                    cx="12"
-                                                    cy="12"
-                                                    r="10"
-                                                    stroke="currentColor"
-                                                    strokeWidth="4"
-                                                ></circle>
-                                                <path
-                                                    className="opacity-75"
-                                                    fill="currentColor"
-                                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                                ></path>
-                                            </svg>
-                                            Verifying...
-                                        </span>
+                                    <div className="">
+                                        <label
+                                            htmlFor="code"
+                                            className="block text-sm font-medium text-gray-700 mb-2"
+                                        >
+                                            Verification Code
+                                        </label>
+                                        <p className="text-sm text-gray-600 mb-3">
+                                            We sent a code to{" "}
+                                            <span className="font-medium text-bamboo">
+                                                {email}
+                                            </span>
+                                        </p>
+                                        <input
+                                            id="code"
+                                            type="text"
+                                            value={code}
+                                            onChange={(e) =>
+                                                setCode(e.target.value)
+                                            }
+                                            placeholder="Enter 6-digit code"
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bamboo focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500 text-center text-lg tracking-widest"
+                                            required
+                                            maxLength={7}
+                                        />
+                                    </div>
+
+                                    {/* Terms and Conditions Checkbox */}
+                                    {mailExists ? (
+                                        <></>
                                     ) : (
-                                        "Verify & Login"
+                                        <>
+                                            <div className="flex items-start space-x-3">
+                                                <input
+                                                    id="terms"
+                                                    type="checkbox"
+                                                    checked={agreedToTerms}
+                                                    onChange={(e) =>
+                                                        setAgreedToTerms(
+                                                            e.target.checked
+                                                        )
+                                                    }
+                                                    className="mt-1 h-4 w-4 text-bamboo focus:ring-bamboo border-gray-300 rounded cursor-pointer"
+                                                    required
+                                                />
+                                                <label
+                                                    htmlFor="terms"
+                                                    className="text-sm text-gray-700 cursor-pointer"
+                                                >
+                                                    I agree to the{" "}
+                                                    <a
+                                                        href="/terms"
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-bamboo hover:text-bamboo/80 underline font-medium"
+                                                        onClick={(e) =>
+                                                            e.stopPropagation()
+                                                        }
+                                                    >
+                                                        Terms and Conditions
+                                                    </a>
+                                                </label>
+                                            </div>
+                                        </>
                                     )}
-                                </Button>
-                                <div className="flex justify-center">
-                                    <button
-                                        type="button"
-                                        className=" text-bamboo hover:text-bamboo/80 font-medium transition-colors duration-200 hover:border-b-2 border-b-black cursor-pointer"
-                                        onClick={() => setStep("request")}
+
+                                    <Button
+                                        type="submit"
+                                        className="bg-secondary hover:bg-secondary/90 text-secondary-foreground cursor-pointer"
+                                        disabled={
+                                            loading ||
+                                            (!mailExists && !agreedToTerms)
+                                        }
                                     >
-                                        Use a different email
-                                    </button>
-                                </div>
-                            </form>
+                                        {loading ? (
+                                            <span className="flex items-center justify-center">
+                                                <svg
+                                                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    fill="none"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <circle
+                                                        className="opacity-25"
+                                                        cx="12"
+                                                        cy="12"
+                                                        r="10"
+                                                        stroke="currentColor"
+                                                        strokeWidth="4"
+                                                    ></circle>
+                                                    <path
+                                                        className="opacity-75"
+                                                        fill="currentColor"
+                                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                                    ></path>
+                                                </svg>
+                                                Verifying...
+                                            </span>
+                                        ) : (
+                                            "Verify & Login"
+                                        )}
+                                    </Button>
+                                    <div className="flex justify-center">
+                                        <button
+                                            type="button"
+                                            className=" text-bamboo hover:text-bamboo/80 font-medium transition-colors duration-200 hover:border-b-2 border-b-black cursor-pointer"
+                                            onClick={() => setStep("request")}
+                                        >
+                                            Use a different email
+                                        </button>
+                                    </div>
+                                </form>
+                            </>
                         )}
 
                         <div className="text-center">

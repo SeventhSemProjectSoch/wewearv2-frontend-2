@@ -22,6 +22,67 @@ interface Props {
     feedType: FeedType;
 }
 
+const CaptionDisplay: React.FC<{ caption: string }> = ({ caption }) => {
+    let userPart = "";
+    let aiPart = "";
+
+    if (caption.includes("AI IDENTIFIED:")) {
+        const parts = caption.split("AI IDENTIFIED:");
+        userPart = parts[0] ? parts[0].trim() : "";
+        aiPart = parts[1] ? `AI IDENTIFIED:${parts[1].trim()}` : "";
+    } else {
+        userPart = caption.trim();
+    }
+
+    console.log("captio 1 => ", userPart);
+    console.log("captio 2 => ", aiPart);
+    const fullCaption = userPart + (aiPart ? `\n\n${aiPart}` : "");
+    console.log("full caption => ", fullCaption);
+
+    const captionRef = useRef<HTMLParagraphElement>(null);
+    const [isExpanded, setIsExpanded] = useState(false);
+    const [isTruncated, setIsTruncated] = useState(false);
+
+    useEffect(() => {
+        const checkTruncation = () => {
+            if (captionRef.current) {
+                const truncated =
+                    captionRef.current.scrollHeight >
+                    captionRef.current.clientHeight;
+                setIsTruncated(truncated);
+            }
+        };
+
+        checkTruncation();
+        window.addEventListener("resize", checkTruncation);
+
+        return () => window.removeEventListener("resize", checkTruncation);
+    }, [fullCaption, isExpanded]);
+
+    return (
+        <div
+            className="feed-caption"
+            onClick={() => {
+                if (isTruncated && !isExpanded) {
+                    setIsExpanded(true);
+                }
+            }}
+            style={{
+                cursor: isTruncated && !isExpanded ? "pointer" : "default",
+            }}
+        >
+            <p
+                ref={captionRef}
+                className={`feed-caption-text ${isExpanded ? "expanded" : ""}`}
+            >
+                {/* {fullCaption} */}
+                <p>{userPart}</p>
+                <p>{aiPart}</p>
+            </p>
+        </div>
+    );
+};
+
 const Feed: React.FC<Props> = ({ feedType }) => {
     const [posts, setPosts] = useState<Post[]>([]);
     const [message, setMessage] = useState<string>("");
@@ -71,6 +132,7 @@ const Feed: React.FC<Props> = ({ feedType }) => {
                 } else {
                     const data = await getFeed(feedType);
                     console.log("data ==> ", data);
+
                     if ("detail" in data) {
                         setMessage(data.detail);
                         setHasMore(false);
@@ -100,6 +162,7 @@ const Feed: React.FC<Props> = ({ feedType }) => {
         [feedType, isLoading, hasMore, offset, showLoader, hideLoader]
     );
 
+    console.log("post ==> ", posts);
     // Reset on feed type change
     useEffect(() => {
         setPosts([]);
@@ -292,11 +355,9 @@ const Feed: React.FC<Props> = ({ feedType }) => {
 
                                         {/* Caption */}
                                         {post.caption && (
-                                            <div className="feed-caption">
-                                                <p className="feed-caption-text">
-                                                    {post.caption}
-                                                </p>
-                                            </div>
+                                            <CaptionDisplay
+                                                caption={post.caption}
+                                            />
                                         )}
 
                                         {/* Themes */}
@@ -356,23 +417,6 @@ const Feed: React.FC<Props> = ({ feedType }) => {
 
                                             {/* Comment Button */}
                                             <div className="feed-action-item   ">
-                                                {/* <button
-                                                    className="feed-action-btn feed-comment-btn"
-                                                    aria-label="Comment on post"
-                                                >
-                                                    <svg
-                                                        className="feed-action-icon"
-                                                        viewBox="0 0 24 24"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        strokeWidth="2"
-                                                    >
-                                                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                                                    </svg>
-                                                </button>
-                                                <span className="feed-action-count">
-                                                    {post.comments_count || 0}
-                                                </span> */}
                                                 <CommentsPopover
                                                     postId={post.id}
                                                 />

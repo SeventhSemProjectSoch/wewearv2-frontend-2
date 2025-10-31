@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Users, Compass, Plus, User, LogOut } from "lucide-react";
+import { Home, Users, Compass, Plus, User, LogOut, Edit } from "lucide-react";
 
 const Navbar = () => {
     const { pathname } = useLocation();
@@ -11,12 +11,7 @@ const Navbar = () => {
             label: "For You",
             isActive: pathname === "/feeds/foryou",
         },
-        {
-            path: "/feeds/friends",
-            icon: Users,
-            label: "Friends",
-            isActive: pathname === "/feeds/friends",
-        },
+
         {
             path: "/feeds/explore",
             icon: Compass,
@@ -28,13 +23,19 @@ const Navbar = () => {
             icon: Plus,
             label: "Upload",
             isActive: pathname === "/feeds/upload",
-            isSpecial: true,
+            // isSpecial: true,
         },
         {
             path: "/profile",
             icon: User,
             label: "Profile",
             isActive: pathname === "/profile",
+        },
+        {
+            path: "/edit-profile",
+            icon: Edit,
+            label: "Edit Profile",
+            isActive: pathname === "/edit-profile",
         },
         {
             path: "/logout",
@@ -48,7 +49,7 @@ const Navbar = () => {
     return (
         <nav className=" w-64 h-screen bg-white border-r border-gray-200 flex flex-col fixed left-0 top-0 z-9999">
             <div className="p-6 border-b border-gray-200">
-                <h1 className="text-2xl font-bold text-bamboo-600">Your App</h1>
+                <h1 className="text-2xl font-bold text-bamboo-600">We Wear</h1>
             </div>
             <div className="flex-1 overflow-y-auto py-4 ">
                 <ul className="space-y-2 px-4">
@@ -67,7 +68,7 @@ const Navbar = () => {
                                 >
                                     <div
                                         className={`relative ${
-                                            item.isSpecial
+                                            item?.isSpecial
                                                 ? "bg-bamboo-600 rounded-full p-2 mb-1"
                                                 : "mb-1"
                                         }`}
@@ -81,7 +82,7 @@ const Navbar = () => {
                                             }`}
                                         />
 
-                                        {item.isActive && !item.isSpecial && (
+                                        {item.isActive && !item?.isSpecial && (
                                             <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-bamboo-600 rounded-full"></div>
                                         )}
                                     </div>

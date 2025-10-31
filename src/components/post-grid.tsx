@@ -24,12 +24,14 @@ export interface Post {
 
 interface PostGridProps {
     // posts: Post[];
-    id: string;
+    id?: string;
 }
 
 export default function PostGrid({ id }: PostGridProps) {
     const [allPost, setAllPost] = useState<Post[]>([]);
+
     useEffect(() => {
+        console.log("owner id 2 ==> ", id);
         const apiRequest2 = async () => {
             const apiAllPost = await apiClient.get(`/content/posts/user/${id}`);
             console.log("body type ==> ", apiAllPost);
@@ -37,7 +39,10 @@ export default function PostGrid({ id }: PostGridProps) {
         };
 
         apiRequest2();
-    }, []);
+    }, [id]);
+
+    console.log("owner id 1 ==> ", id);
+    console.log("owner data ==> ", allPost);
     return (
         <div className="max-w-6xl mx-auto px-4 py-12">
             {/* Section title */}

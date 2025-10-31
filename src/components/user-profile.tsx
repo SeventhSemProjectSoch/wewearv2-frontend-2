@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import apiClient from "@/services/apiClient";
 import toast from "react-hot-toast";
 
-interface User {
+export interface User {
     id: string;
     username: string;
     full_name: string;
@@ -23,10 +23,11 @@ interface User {
 
 interface UserProfileProps {
     // user?: User;
-    id: string;
+    id?: string;
+    role: "owner" | "creator";
 }
 
-export default function UserProfile({ id }: UserProfileProps) {
+export default function UserProfile({ id, role }: UserProfileProps) {
     // 49945347-5fe4-4f86-bd9f-7220f2c9be68
     const [user, setUser] = useState<null | User>(null);
     const [follow, setFollow] = useState(false);
@@ -34,11 +35,20 @@ export default function UserProfile({ id }: UserProfileProps) {
     useEffect(() => {
         const apiRequest = async () => {
             const response = await apiClient.get(`/profile/profile/${id}`);
-            console.log("follow response 1 ==> ", response);
+            console.log("creator response 1 ==> ", response);
+            setUser(response.data);
+        };
+        const apiRequest2 = async () => {
+            const response = await apiClient.get(`/profile/profile`);
+            console.log("owner response 2 ==> ", response);
             setUser(response.data);
         };
 
-        apiRequest();
+        if (role === "creator") {
+            apiRequest();
+        } else {
+            apiRequest2();
+        }
     }, [id, follow]);
 
     const handleFollow = async () => {
@@ -117,15 +127,21 @@ export default function UserProfile({ id }: UserProfileProps) {
                             <h2 className="text-2xl md:text-3xl font-semibold text-foreground">
                                 {user?.full_name}
                             </h2>
-                            <div className="flex gap-2">
-                                <Button
-                                    onClick={handleFollow}
-                                    className="bg-primary cursor-pointer text-primary-foreground hover:bg-primary/90"
-                                >
-                                    {follow ? "Following" : "Follow"}
-                                </Button>
-                                {/* <Button variant="outline">Message</Button> */}
-                            </div>
+                            {role === "creator" ? (
+                                <>
+                                    <div className="flex gap-2">
+                                        <Button
+                                            onClick={handleFollow}
+                                            className="bg-primary cursor-pointer text-primary-foreground hover:bg-primary/90"
+                                        >
+                                            {follow ? "Following" : "Follow"}
+                                        </Button>
+                                        {/* <Button variant="outline">Message</Button> */}
+                                    </div>
+                                </>
+                            ) : (
+                                <></>
+                            )}
                         </div>
 
                         {/* Stats */}

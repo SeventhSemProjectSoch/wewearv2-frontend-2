@@ -8,6 +8,7 @@ import MainLayout from "@/layout/MainLayout";
 import Home from "../pages/Home";
 import type { RouteObject } from "react-router-dom";
 import FeedProfile from "@/pages/FeedProfile";
+import ProfileInfo from "@/pages/profile-info";
 
 const routes: RouteObject[] = [
     {
@@ -32,6 +33,10 @@ const routes: RouteObject[] = [
         children: [
             {
                 path: "/profile",
+                element: <ProfileInfo />,
+            },
+            {
+                path: "/edit-profile",
                 element: <Profile />,
             },
             {

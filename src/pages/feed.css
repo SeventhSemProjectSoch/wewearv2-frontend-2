@@ -175,6 +175,10 @@
     transform: translateY(-1px);
 }
 
+.feed-caption-text.expanded {
+    -webkit-line-clamp: unset;
+    overflow: visible;
+}
 /* Action Buttons - Right Side */
 .feed-actions {
     display: flex;
