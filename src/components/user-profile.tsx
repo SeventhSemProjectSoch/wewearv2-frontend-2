@@ -20,6 +20,7 @@ export interface User {
     followers_count: number;
     following_count: number;
     posts_count: number;
+    is_following:boolean;
 }
 
 interface UserProfileProps {
@@ -132,7 +133,7 @@ export default function UserProfile({ id, role }: UserProfileProps) {
                                             onClick={handleFollow}
                                             className="bg-primary cursor-pointer text-primary-foreground hover:bg-primary/90"
                                         >
-                                            {follow ? "Following" : "Follow"}
+                                            {(user?.is_following || follow) ? "Following" : "Follow"}
                                         </Button>
                                         {/* <Button variant="outline">Message</Button> */}
                                     </div>
