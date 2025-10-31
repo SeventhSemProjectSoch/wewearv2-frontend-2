@@ -91,7 +91,9 @@ const Feed: React.FC<Props> = ({ feedType }) => {
     const [hasMore, setHasMore] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
     const [currentPostIndex, setCurrentPostIndex] = useState(0);
-    const [activeCommentPostId, setActiveCommentPostId] = useState<number | null>(null);
+    const [activeCommentPostId, setActiveCommentPostId] = useState<
+        number | null
+    >(null);
     const [comments, setComments] = useState<{ [key: number]: Comment[] }>({});
     const [loadingComments, setLoadingComments] = useState(false);
 
@@ -245,6 +247,8 @@ const Feed: React.FC<Props> = ({ feedType }) => {
             .catch(() => toast.error("Failed to like post"));
     }, []);
 
+    console.log(" real post ==> ", posts);
+
     const handleSave = useCallback((post: Post) => {
         savePost(post.id)
             .then(() => {
@@ -273,7 +277,9 @@ const Feed: React.FC<Props> = ({ feedType }) => {
                 // Add the new comment to the local state
                 setComments((prev) => {
                     const existingComments = prev[post.id];
-                    const commentsArray = Array.isArray(existingComments) ? existingComments : [];
+                    const commentsArray = Array.isArray(existingComments)
+                        ? existingComments
+                        : [];
                     return {
                         ...prev,
                         [post.id]: [...commentsArray, newComment],
@@ -305,29 +311,39 @@ const Feed: React.FC<Props> = ({ feedType }) => {
             .catch(() => toast.error("Failed to share post"));
     }, []);
 
-    const toggleComments = useCallback(async (postId: number) => {
-        if (activeCommentPostId === postId) {
-            setActiveCommentPostId(null);
-        } else {
-            setActiveCommentPostId(postId);
-            if (!comments[postId]) {
-                setLoadingComments(true);
-                try {
-                    const postComments = await getComments(postId);
-                    // Ensure we always set an array
-                    const commentsArray = Array.isArray(postComments["comments"]) ? postComments["comments"] : [];
-                    setComments((prev) => ({ ...prev, [postId]: commentsArray }));
-                } catch (error) {
-                    console.error("Failed to fetch comments:", error);
-                    toast.error("Failed to load comments");
-                    // Set empty array on error
-                    setComments((prev) => ({ ...prev, [postId]: [] }));
-                } finally {
-                    setLoadingComments(false);
+    const toggleComments = useCallback(
+        async (postId: number) => {
+            if (activeCommentPostId === postId) {
+                setActiveCommentPostId(null);
+            } else {
+                setActiveCommentPostId(postId);
+                if (!comments[postId]) {
+                    setLoadingComments(true);
+                    try {
+                        const postComments = await getComments(postId);
+                        // Ensure we always set an array
+                        const commentsArray = Array.isArray(
+                            postComments["comments"]
+                        )
+                            ? postComments["comments"]
+                            : [];
+                        setComments((prev) => ({
+                            ...prev,
+                            [postId]: commentsArray,
+                        }));
+                    } catch (error) {
+                        console.error("Failed to fetch comments:", error);
+                        toast.error("Failed to load comments");
+                        // Set empty array on error
+                        setComments((prev) => ({ ...prev, [postId]: [] }));
+                    } finally {
+                        setLoadingComments(false);
+                    }
                 }
             }
-        }
-    }, [activeCommentPostId, comments]);
+        },
+        [activeCommentPostId, comments]
+    );
 
     if (message && posts.length === 0)
         return (
@@ -465,11 +481,14 @@ const Feed: React.FC<Props> = ({ feedType }) => {
                                             <div className="feed-action-item">
                                                 <button
                                                     className={`feed-action-btn feed-comment-btn ${
-                                                        activeCommentPostId === post.id
+                                                        activeCommentPostId ===
+                                                        post.id
                                                             ? "feed-action-active"
                                                             : ""
                                                     }`}
-                                                    onClick={() => toggleComments(post.id)}
+                                                    onClick={() =>
+                                                        toggleComments(post.id)
+                                                    }
                                                     aria-label="Comment on post"
                                                 >
                                                     <svg
@@ -574,10 +593,14 @@ const Feed: React.FC<Props> = ({ feedType }) => {
                             {activeCommentPostId === post.id && (
                                 <div className="feed-comments-sidebar">
                                     <div className="feed-comments-header">
-                                        <h3 className="feed-comments-title">Comments</h3>
+                                        <h3 className="feed-comments-title">
+                                            Comments
+                                        </h3>
                                         <button
                                             className="feed-comments-close"
-                                            onClick={() => setActiveCommentPostId(null)}
+                                            onClick={() =>
+                                                setActiveCommentPostId(null)
+                                            }
                                             aria-label="Close comments"
                                         >
                                             <svg
@@ -586,8 +609,18 @@ const Feed: React.FC<Props> = ({ feedType }) => {
                                                 stroke="currentColor"
                                                 strokeWidth="2"
                                             >
-                                                <line x1="18" y1="6" x2="6" y2="18" />
-                                                <line x1="6" y1="6" x2="18" y2="18" />
+                                                <line
+                                                    x1="18"
+                                                    y1="6"
+                                                    x2="6"
+                                                    y2="18"
+                                                />
+                                                <line
+                                                    x1="6"
+                                                    y1="6"
+                                                    x2="18"
+                                                    y2="18"
+                                                />
                                             </svg>
                                         </button>
                                     </div>
@@ -598,34 +631,56 @@ const Feed: React.FC<Props> = ({ feedType }) => {
                                                 <div className="feed-spinner"></div>
                                                 <p>Loading comments...</p>
                                             </div>
-                                        ) :  comments[post.id] && Array.isArray(comments[post.id]) && comments[post.id].length > 0 ? (
+                                        ) : comments[post.id] &&
+                                          Array.isArray(comments[post.id]) &&
+                                          comments[post.id].length > 0 ? (
                                             comments[post.id].map((comment) => (
-                                                <div key={comment.id} className="feed-comment-item">
+                                                <div
+                                                    key={comment.id}
+                                                    className="feed-comment-item"
+                                                >
                                                     <div className="feed-comment-avatar">
                                                         <span>
-                                                            {comment.username?.charAt(0).toUpperCase() || 'U'}
+                                                            {comment.username
+                                                                ?.charAt(0)
+                                                                .toUpperCase() ||
+                                                                "U"}
                                                         </span>
                                                     </div>
                                                     <div className="feed-comment-content">
                                                         <div className="feed-comment-header">
                                                             <span className="feed-comment-username">
-                                                                @{comment.username}
+                                                                @
+                                                                {
+                                                                    comment.username
+                                                                }
                                                             </span>
                                                             <span className="feed-comment-time">
-                                                                {new Date(comment.created_at).toLocaleDateString()}
+                                                                {new Date(
+                                                                    comment.created_at
+                                                                ).toLocaleDateString()}
                                                             </span>
                                                         </div>
-                                                        <p className="feed-comment-text">{comment.text}</p>
+                                                        <p className="feed-comment-text">
+                                                            {comment.text}
+                                                        </p>
                                                     </div>
                                                 </div>
                                             ))
                                         ) : (
                                             <div className="feed-comments-empty">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <svg
+                                                    viewBox="0 0 24 24"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    strokeWidth="2"
+                                                >
                                                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                                                 </svg>
                                                 <p>No comments yet</p>
-                                                <span>Be the first to comment!</span>
+                                                <span>
+                                                    Be the first to comment!
+                                                </span>
                                             </div>
                                         )}
                                     </div>
@@ -635,11 +690,16 @@ const Feed: React.FC<Props> = ({ feedType }) => {
                                             className="feed-comments-input-form"
                                             onSubmit={(e) => {
                                                 e.preventDefault();
-                                                const form = e.target as HTMLFormElement;
-                                                const input = form.elements.namedItem(
-                                                    "comment"
-                                                ) as HTMLInputElement;
-                                                handleComment(post, input.value);
+                                                const form =
+                                                    e.target as HTMLFormElement;
+                                                const input =
+                                                    form.elements.namedItem(
+                                                        "comment"
+                                                    ) as HTMLInputElement;
+                                                handleComment(
+                                                    post,
+                                                    input.value
+                                                );
                                                 input.value = "";
                                             }}
                                         >
@@ -655,7 +715,10 @@ const Feed: React.FC<Props> = ({ feedType }) => {
                                                 className="feed-comments-submit"
                                                 aria-label="Post comment"
                                             >
-                                                <svg viewBox="0 0 24 24" fill="currentColor">
+                                                <svg
+                                                    viewBox="0 0 24 24"
+                                                    fill="currentColor"
+                                                >
                                                     <path d="M2,21L23,12L2,3V10L17,12L2,14V21Z" />
                                                 </svg>
                                             </button>
