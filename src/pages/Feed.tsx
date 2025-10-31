@@ -34,10 +34,10 @@ const CaptionDisplay: React.FC<{ caption: string }> = ({ caption }) => {
         userPart = caption.trim();
     }
 
-    console.log("captio 1 => ", userPart);
-    console.log("captio 2 => ", aiPart);
+    // console.log("captio 1 => ", userPart);
+    // console.log("captio 2 => ", aiPart);
     const fullCaption = userPart + (aiPart ? `\n\n${aiPart}` : "");
-    console.log("full caption => ", fullCaption);
+    // console.log("full caption => ", fullCaption);
 
     const captionRef = useRef<HTMLParagraphElement>(null);
     const [isExpanded, setIsExpanded] = useState(false);
@@ -133,7 +133,7 @@ const Feed: React.FC<Props> = ({ feedType }) => {
                     setHasMore(newPosts.length === PAGE_SIZE);
                 } else {
                     const data = await getFeed(feedType);
-                    console.log("data ==> ", data);
+                    // console.log("data ==> ", data);
 
                     if ("detail" in data) {
                         setMessage(data.detail);
@@ -164,7 +164,7 @@ const Feed: React.FC<Props> = ({ feedType }) => {
         [feedType, isLoading, hasMore, offset, showLoader, hideLoader]
     );
 
-    console.log("post ==> ", posts);
+    // console.log("post ==> ", posts);
     // Reset on feed type change
     useEffect(() => {
         setPosts([]);
@@ -265,7 +265,7 @@ const Feed: React.FC<Props> = ({ feedType }) => {
     }, []);
 
     const handleComment = useCallback((post: Post, text: string) => {
-        console.log("comment ==> ", text);
+        // console.log("comment ==> ", text);
         if (!text.trim()) return;
         commentPost(post.id, text)
             .then((newComment) => {
@@ -310,12 +310,12 @@ const Feed: React.FC<Props> = ({ feedType }) => {
             setActiveCommentPostId(null);
         } else {
             setActiveCommentPostId(postId);
-            if (!comments[postId] || !Array.isArray(comments[postId])) {
+            if (!comments[postId]) {
                 setLoadingComments(true);
                 try {
                     const postComments = await getComments(postId);
                     // Ensure we always set an array
-                    const commentsArray = Array.isArray(postComments) ? postComments : [];
+                    const commentsArray = Array.isArray(postComments["comments"]) ? postComments["comments"] : [];
                     setComments((prev) => ({ ...prev, [postId]: commentsArray }));
                 } catch (error) {
                     console.error("Failed to fetch comments:", error);
@@ -598,7 +598,7 @@ const Feed: React.FC<Props> = ({ feedType }) => {
                                                 <div className="feed-spinner"></div>
                                                 <p>Loading comments...</p>
                                             </div>
-                                        ) : comments[post.id] && Array.isArray(comments[post.id]) && comments[post.id].length > 0 ? (
+                                        ) :  comments[post.id] && Array.isArray(comments[post.id]) && comments[post.id].length > 0 ? (
                                             comments[post.id].map((comment) => (
                                                 <div key={comment.id} className="feed-comment-item">
                                                     <div className="feed-comment-avatar">
