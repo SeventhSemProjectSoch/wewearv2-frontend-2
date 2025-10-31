@@ -1,5 +1,5 @@
 import apiClient from "./apiClient";
-import { Comment } from "./types";
+import type { Comment } from "./types";
 
 export const likePost = (postId: number) => {
     return apiClient.post("/content/interactions/like/", null, {
@@ -22,5 +22,13 @@ export const commentPost = (postId: number, text: string): Promise < Comment > =
 export const sharePost = (postId: number): Promise < { slug: string } > => {
     return apiClient
         .post("/content/interactions/share/", { post_id: postId })
+        .then((res) => res.data);
+};
+
+export const getComments = (postId: number): Promise<Comment[]> => {
+    return apiClient
+        .get("/content/interactions/comments/", {
+            params: { post_id: postId },
+        })
         .then((res) => res.data);
 };
