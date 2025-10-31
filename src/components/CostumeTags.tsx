@@ -6,9 +6,10 @@ type Props = React.HTMLAttributes<
     HTMLImageElement | HTMLVideoElement | HTMLPreElement
 > & {
     src: string;
+    enableIntersectionAutoplay?: boolean;
 };
 
-export const Media: React.FC<Props> = ({ src, ...rest }) => {
+export const Media: React.FC<Props> = ({ src, enableIntersectionAutoplay = true, ...rest }) => {
     const fullSrc =
         src.startsWith("http://") || src.startsWith("https://")
             ? src
@@ -62,7 +63,7 @@ export const Media: React.FC<Props> = ({ src, ...rest }) => {
 
     useEffect(() => {
         const video = videoRef.current;
-        if (!video || !blobUrl) return;
+        if (!video || !blobUrl || !enableIntersectionAutoplay) return;
 
         const observer = new IntersectionObserver(
             (entries) => {
@@ -85,7 +86,7 @@ export const Media: React.FC<Props> = ({ src, ...rest }) => {
         observer.observe(video);
 
         return () => observer.disconnect();
-    }, [blobUrl, hasUserPaused]);
+    }, [blobUrl, hasUserPaused, enableIntersectionAutoplay]);
 
     const togglePlay = () => {
         if (!videoRef.current) return;

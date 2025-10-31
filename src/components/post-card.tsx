@@ -72,6 +72,7 @@ export default function PostCard({ post }: PostCardProps) {
                     <Media
                         src={post.media_url}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        enableIntersectionAutoplay={false}
                     />
                     {/* Overlay on hover */}
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center gap-8 opacity-0 group-hover:opacity-100">
