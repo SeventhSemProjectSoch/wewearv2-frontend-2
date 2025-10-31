@@ -165,7 +165,7 @@ export const Media: React.FC<Props> = ({ src, ...rest }) => {
                     {...(rest as React.VideoHTMLAttributes<HTMLVideoElement>)}
                 />
 
-                {showControls && (
+                {/* {showControls && (
                     <div
                         style={{
                             position: "absolute",
@@ -234,7 +234,7 @@ export const Media: React.FC<Props> = ({ src, ...rest }) => {
                             className="w-2xl"
                         />
                     </div>
-                )}
+                )} */}
             </div>
         );
     }

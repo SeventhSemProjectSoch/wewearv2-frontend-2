@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import apiClient from "@/services/apiClient";
 import toast from "react-hot-toast";
+import ENV from "@/config";
 
 export interface User {
     id: string;
@@ -31,7 +32,7 @@ export default function UserProfile({ id, role }: UserProfileProps) {
     // 49945347-5fe4-4f86-bd9f-7220f2c9be68
     const [user, setUser] = useState<null | User>(null);
     const [follow, setFollow] = useState(false);
-    console.log("id ==> ", id);
+    console.log("latest user ==> ", user);
     useEffect(() => {
         const apiRequest = async () => {
             const response = await apiClient.get(`/profile/profile/${id}`);
@@ -105,10 +106,7 @@ export default function UserProfile({ id, role }: UserProfileProps) {
                         <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-balance">
                             {user?.profile_picture ? (
                                 <img
-                                    src={
-                                        user?.profile_picture ||
-                                        "/placeholder.svg"
-                                    }
+                                    src={`${ENV.BASE_URL}/${user?.profile_picture}`}
                                     alt={user?.full_name}
                                     className="w-full h-full object-cover"
                                 />
