@@ -20,6 +20,7 @@ import {
     createPost,
     createPostWithMultipleFiles,
 } from "../services/postService";
+import { ThemesDropdown } from "@/components/theme-dropdown";
 
 interface UploadedFile {
     file: File;
@@ -71,29 +72,31 @@ const CameraPreview = ({
     const startRecording = () => {
         recordedChunksRef.current = [];
         setRecordingTime(0);
-        
+
         if (webcamRef.current && webcamRef.current.stream) {
             const stream = webcamRef.current.stream;
-            
+
             const options = { mimeType: "video/webm" };
             const mediaRecorder = new MediaRecorder(stream, options);
-            
+
             mediaRecorder.ondataavailable = (event) => {
                 if (event.data && event.data.size > 0) {
                     recordedChunksRef.current.push(event.data);
                 }
             };
-            
+
             mediaRecorder.onstop = () => {
                 // Create blob when recording stops
                 if (recordedChunksRef.current.length > 0) {
-                    const blob = new Blob(recordedChunksRef.current, { type: "video/webm" });
+                    const blob = new Blob(recordedChunksRef.current, {
+                        type: "video/webm",
+                    });
                     onVideoCapture(blob);
                     toast.success("Video recorded!");
                     recordedChunksRef.current = [];
                 }
             };
-            
+
             mediaRecorder.start(100); // Collect data every 100ms
             mediaRecorderRef.current = mediaRecorder;
             setIsRecording(true);
@@ -102,7 +105,10 @@ const CameraPreview = ({
     };
 
     const stopRecording = () => {
-        if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+        if (
+            mediaRecorderRef.current &&
+            mediaRecorderRef.current.state !== "inactive"
+        ) {
             mediaRecorderRef.current.stop();
             setIsRecording(false);
         }
@@ -111,7 +117,9 @@ const CameraPreview = ({
     const formatTime = (seconds: number) => {
         const mins = Math.floor(seconds / 60);
         const secs = seconds % 60;
-        return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+        return `${mins.toString().padStart(2, "0")}:${secs
+            .toString()
+            .padStart(2, "0")}`;
     };
 
     return (
@@ -132,18 +140,18 @@ const CameraPreview = ({
                 }}
                 className="camera-video"
             />
-            
+
             <button onClick={onClose} className="camera-close-btn">
                 <X size={24} />
             </button>
-            
+
             {isRecording && (
                 <div className="camera-timer">
                     <div className="timer-pulse"></div>
                     {formatTime(recordingTime)}
                 </div>
             )}
-            
+
             <div className="camera-controls">
                 <button
                     onClick={capturePhoto}
@@ -153,7 +161,7 @@ const CameraPreview = ({
                 >
                     <Camera size={28} />
                 </button>
-                
+
                 <button
                     onClick={isRecording ? stopRecording : startRecording}
                     className={`record-btn ${isRecording ? "recording" : ""}`}
@@ -193,14 +201,14 @@ const Upload: React.FC = () => {
             type: file.type.startsWith("image/")
                 ? "image"
                 : ("video" as "image" | "video"),
-            themes: []
+            themes: [],
         }));
         setUploadedFiles((prev) => [...prev, ...newFiles]);
     };
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) =>
         handleFiles(Array.from(e.target.files || []));
-    
+
     const handleDrop = (e: React.DragEvent) => {
         e.preventDefault();
         e.stopPropagation();
@@ -220,7 +228,7 @@ const Upload: React.FC = () => {
                 file,
                 preview: URL.createObjectURL(blob),
                 type: "image",
-                themes: []
+                themes: [],
             },
         ]);
         setShowCamera(false);
@@ -236,7 +244,7 @@ const Upload: React.FC = () => {
                 file,
                 preview: URL.createObjectURL(blob),
                 type: "video",
-                themes: []
+                themes: [],
             },
         ]);
         setShowCamera(false);
@@ -497,7 +505,7 @@ const Upload: React.FC = () => {
                                 <div className="form-group">
                                     <label>Themes</label>
                                     <div className="theme-input-group">
-                                        <input
+                                        {/* <input
                                             type="text"
                                             value={currentTheme}
                                             onChange={(e) =>
@@ -509,7 +517,12 @@ const Upload: React.FC = () => {
                                             placeholder="Add themes..."
                                             className="form-input"
                                         />
-                                        <button onClick={addTheme}>Add</button>
+                                        <button onClick={addTheme}>Add</button> */}
+                                        <ThemesDropdown
+                                            value={themes}
+                                            onChange={setThemes}
+                                            hideSelectedTheme={true}
+                                        />
                                     </div>
                                     <div className="theme-tags">
                                         {themes.map((theme) => (

@@ -8,6 +8,7 @@ interface ThemesDropdownProps {
     onChange: (themes: string[]) => void;
     placeholder?: string;
     className?: string;
+    hideSelectedTheme?: boolean;
 }
 
 const THEME_OPTIONS = ["fitness", "traditional", "trend"];
@@ -17,6 +18,7 @@ export function ThemesDropdown({
     onChange,
     placeholder = "e.g., Minimalist, Streetwear, Vintage, Bohemian",
     className = "h-11",
+    hideSelectedTheme = false,
 }: ThemesDropdownProps) {
     const safeValue = Array.isArray(value) ? value : [];
     const [theme, setTheme] = useState<string[]>([]);
@@ -53,29 +55,37 @@ export function ThemesDropdown({
                 ))}
             </select>
 
-            {safeValue.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                    {safeValue.map((theme) => (
-                        <div
-                            key={theme}
-                            className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm"
-                        >
-                            <span>{theme}</span>
-                            <button
-                                type="button"
-                                onClick={() =>
-                                    onChange(
-                                        safeValue.filter((t) => t !== theme)
-                                    )
-                                }
-                                className="ml-1 hover:opacity-70 transition-opacity"
-                                aria-label={`Remove ${theme}`}
-                            >
-                                ✕
-                            </button>
+            {hideSelectedTheme ? (
+                <></>
+            ) : (
+                <>
+                    {safeValue.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                            {safeValue.map((theme) => (
+                                <div
+                                    key={theme}
+                                    className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm"
+                                >
+                                    <span>{theme}</span>
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            onChange(
+                                                safeValue.filter(
+                                                    (t) => t !== theme
+                                                )
+                                            )
+                                        }
+                                        className="ml-1 hover:opacity-70 transition-opacity"
+                                        aria-label={`Remove ${theme}`}
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
+                            ))}
                         </div>
-                    ))}
-                </div>
+                    )}
+                </>
             )}
         </div>
     );
